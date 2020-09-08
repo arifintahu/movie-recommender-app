@@ -1,0 +1,3 @@
+venv
+src/services/__pycache__
+src/services/modules/__pycache__

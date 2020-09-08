@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title>Recommender System</title>
+		<link rel="stylesheet" type="text/css" href="%% url_for('static', filename='css/style.css') %%">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	</head>
+	<body class="bg-light">
+		<div id="app">
+			<div class=" bg-white heading text-center p-4 shadow">
+				<h1 class="font-weight-bold text-secondary">Recommender System</h1>
+			</div>
+			<div class="container p-3 body">
+				<section id="section-search">
+					<div class="bg-white text-center p-3 mb-3 shadow">
+						<div class="content d-flex px-5">
+							<select class="custom-select" id="selectUser">
+								<option selected>Choose user...</option>
+								<option v-for="user, index in users" :key="index" :value="user">{{ user }}</option>
+							</select>
+							<button type="button" class="btn btn-outline-primary ml-2" @click.prevent="submit">Submit</button>
+						</div>
+					</div>
+				</section>
+				<section id="section-watched" v-if="watched.length">
+					<div class="bg-white text-left p-3 mb-3 shadow">
+						<div class="title">
+							<p class="text-secondary">You've watched these movies</p>
+						</div>
+						<div class="content">
+							<div class="card-list d-flex align-content-start flex-wrap">
+								<div v-for="item, index in watched" :key="index" class="card border-primary m-1">
+									<div class="card-body p-1">
+										<div class="card-title m-0 p-1 d-flex">
+											<div class="title">{{ item.title }}</div>
+											<div class="rating px-1 font-weight-bold text-warning">{{ item.rating.toFixed(1) }}</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+				<section id="section-recommended" v-if="recommended.length">
+					<div class="bg-white text-left p-3 mb-3 shadow">
+						<div class="title">
+							<p class="text-secondary">Recommended for you</p>
+						</div>
+						<div class="content">
+							<div class="card-list d-flex align-content-start flex-wrap">
+								<div v-for="item, index in recommended" :key="index" class="card border-primary m-1">
+									<div class="card-body p-1">
+										<div class="card-title m-0 p-1">{{ item }}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+		<script type="text/javascript">
+			const app = new Vue({
+				data: function() {
+					return {
+						users: [],
+						watched: [],
+						recommended: []
+					}
+				},
+				mounted() {
+					this.getUser();
+				},
+				methods: {
+					getUser() {
+						fetch('/user')
+							.then(response => response.json())
+							.then(data => this.users = data.users);
+					},
+					submit() {
+						const el = document.getElementById("selectUser");
+						const user = el.options[el.selectedIndex].value;
+						this.getMovie(user);
+					},
+					getMovie(user) {
+						fetch(`/movie/${user}`)
+							.then(response => response.json())
+							.then(data => {
+								this.recommended = data.recommended;
+								this.watched = data.watched;
+							});
+					}
+				}			
+			}).$mount('#app');
+		</script>
+	</body>
+</html>
